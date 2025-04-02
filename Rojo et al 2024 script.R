@@ -13,7 +13,6 @@ library(sf)
 library(gtsummary)
 library(gt)
 library(ggrepel)
-library(ggsflabel)
 library(gridExtra)
 library(ggspatial)
 library(networkD3)
@@ -805,7 +804,7 @@ fig2a<-ggplot()+
   geom_sf(data=ent17_shp, aes(fill=PERSONAS), alpha=0.7, color="transparent")+
   geom_sf(data=stu_are, fill="transparent", color="gray80")+
   geom_sf(data=filter(st_centroid(urb17), pop>=30000 & nom!="Alerce"), aes(color="Cities (over 30,000)"), size=5, shape=21, fill="white")+
-  geom_sf_label_repel(data=filter(urb17,pop>=30000 & nom!="Alerce" & nom!="Temuco- Padre Las Casas"), aes(label=nom))+
+  geom_label_repel(data=filter(urb17,pop>=30000 & nom!="Alerce" & nom!="Temuco- Padre Las Casas"), aes(label=nom, geometry=geometry), stat = "sf_coordinates")+
   theme_minimal()+
   theme(legend.position="bottom", legend.box="vertical", legend.margin=margin())+
   scale_color_manual(values = colors)+
@@ -820,7 +819,7 @@ fig2b<-ggplot()+
   geom_sf(data=dpa_shp, aes(fill=urb_rec), alpha=0.7, color="transparent")+
   geom_sf(data=stu_are, fill="transparent", color="gray80")+
   geom_sf(data=filter(st_centroid(urb17), pop>=30000 & nom!="Alerce"), aes(color="Cities (over 30,000)"), size=5, shape=21, fill="white")+
-  geom_sf_label_repel(data=filter(urb17,pop>=30000 & nom!="Alerce" & nom!="Temuco- Padre Las Casas"), aes(label=nom))+
+  geom_label_repel(data=filter(urb17,pop>=30000 & nom!="Alerce" & nom!="Temuco- Padre Las Casas"), aes(label=nom, geometry=geometry), stat = "sf_coordinates")+
   theme_minimal()+
   theme(legend.position="bottom", legend.box="vertical", legend.margin=margin())+
   scale_color_manual(values = colors)+
@@ -1034,16 +1033,16 @@ remove(pop92_com, mig_tot92_com, mig_urb92_com,
 fig3a<-ggplot()+
   geom_point(data=pop_mig_9202, aes(x=pct_mig_urb02_com, y=100*((pop02_com/pop92_com)^(1/10)-1), size=mig_urb02_com, color=urb_rec), alpha=0.7, show.legend = F)+
   geom_label_repel(data=filter(pop_mig_9202, mig_urb02_com>=900 | urb_rec=="Urban"), aes(x=pct_mig_urb02_com, y=100*((pop02_com/pop92_com)^(1/10)-1), color=urb_rec, label=nom_com), show.legend = F)+
-  scale_size(name="Urban immigrants", breaks=c(500,1000,1500,2000,2500))+
+  scale_size(name="Urban migrants", breaks=c(500,1000,1500,2000,2500))+
   scale_color_manual(values=c("#440154FF", "#2A788EFF", "#7AD151FF"),  name="Municipality of residence")+
   scale_x_continuous(limits=c(0,17), breaks=c(4,8,12,16))+
   scale_y_continuous(limits=c(-7,4), breaks=c(-6,-3,0,3))+
   facet_wrap(vars(nom_reg))+
-  labs(x="Immigration from urban municipalities between 1997-2002 (% of rural population)
+  labs(x="Migration from urban municipalities between 1997-2002 (% of rural population)
        
        
-       ", y="Annual change in rural population (%)", 
-       subtitle="1992-2002")+
+       ", y="Annual change in rural population (%)
+       1992-2002")+
   theme_bw()+
   theme(legend.position = "bottom",
         text = element_text(size=14))
@@ -1051,18 +1050,18 @@ fig3a<-ggplot()+
 fig3b<-ggplot()+
   geom_point(data=pop_mig_0217, aes(x=pct_mig_urb17_com, y=100*((pop17_com/pop02_com)^(1/15)-1), size=mig_urb17_com, color=urb_rec), alpha=0.7)+
   geom_label_repel(data=filter(pop_mig_0217, mig_urb17_com>=900 | urb_rec=="Urban"), aes(x=pct_mig_urb17_com, y=100*((pop17_com/pop02_com)^(1/15)-1), color=urb_rec, label=nom_com), show.legend = F)+
-  scale_size(name="Urban immigrants", breaks=c(500,1000,1500,2000,2500))+
+  scale_size(name="Urban migrants", breaks=c(500,1000,1500,2000,2500))+
   scale_color_manual(values=c("#440154FF", "#2A788EFF", "#7AD151FF"),  name="Municipality of residence")+
   scale_x_continuous(limits=c(0,17), breaks=c(4,8,12,16))+
   scale_y_continuous(limits=c(-7,4), breaks=c(-6,-3,0,3))+
   facet_wrap(vars(nom_reg))+
-  labs(x="Immigration from urban municipalities between 2012-2017 (% of rural population)", y="Annual change in rural population (%)", 
-       subtitle="2002-2017")+
+  labs(x="Migration from urban municipalities between 2012-2017 (% of rural population)", y="Annual change in rural population (%)
+       2002-2017")+
   theme_bw()+
   theme(legend.position = "bottom",
         text = element_text(size=14))
 
-fig3<-grid.arrange(fig3a, fig3b, nrow=2, ncol=1)%>%
+grid.arrange(fig3a, fig3b, nrow=2)%>%
   ggsave(filename="Figure 3.jpg", width=30, height=25, units="cm", dpi=300)
 
 # 4.4. Figure 4 -----------------------------------------------------------
@@ -1137,11 +1136,11 @@ mig17_com<-dpa_shp%>%
 fig5a<-ggplot()+
   geom_sf(data=mig17_com, aes(fill=mig/1000), alpha=0.8, color="transparent")+
   scale_fill_viridis_b(breaks=c(1,5,10,15), na.value="transparent", direction=-1,
-                       name="Immigrants from urban municipalities (000s)")+
+                       name="Migrants from urban municipalities (000s)")+
   geom_sf(data=stu_are, fill="transparent", color="gray80")+
   geom_sf(data=red, aes(color=rou, alpha=rou_alpha))+
   geom_sf(data=filter(st_centroid(urb17), pop>=30000 & nom!="Alerce"), aes(color="Cities (over 30,000)"), size=5, shape=21, fill="white")+
-  geom_sf_label_repel(data=filter(urb17,pop>=30000 & nom!="Alerce" & nom!="Temuco- Padre Las Casas"), aes(label=nom))+
+  geom_label_repel(data=filter(urb17,pop>=30000 & nom!="Alerce" & nom!="Temuco- Padre Las Casas"), aes(label=nom, geometry=geometry), stat = "sf_coordinates")+
   scale_color_manual(values = colors, name="")+
   scale_alpha(guide="none")+
   labs(subtitle="Municipality of residence",
@@ -1167,11 +1166,11 @@ mig17_loc<-loc17_shp%>%
 fig5b<-ggplot()+
   geom_sf(data=mig17_loc, aes(fill=mig), alpha=0.8, color="transparent")+
   scale_fill_viridis_b(breaks=c(50,100,150,200), na.value = "transparent", direction=-1,
-                       name="Immigrants from urban municipalities")+
+                       name="Migrants from urban municipalities")+
   geom_sf(data=stu_are, fill="transparent", color="gray80")+
   geom_sf(data=red, aes(color=rou, alpha=rou_alpha))+
   geom_sf(data=filter(st_centroid(urb17), pop>=30000 & nom!="Alerce"), aes(color="Cities (over 30,000)"), size=5, shape=21, fill="white")+
-  geom_sf_label_repel(data=filter(urb17,pop>=30000 & nom!="Alerce" & nom!="Temuco- Padre Las Casas"), aes(label=nom))+
+  geom_label_repel(data=filter(urb17,pop>=30000 & nom!="Alerce" & nom!="Temuco- Padre Las Casas"), aes(label=nom, geometry=geometry), stat = "sf_coordinates")+
   scale_color_manual(values = colors, name="")+
   scale_alpha(guide="none")+
   labs(subtitle="District of residence", x="", y="", caption="
@@ -1180,7 +1179,7 @@ fig5b<-ggplot()+
   theme(legend.position="bottom", legend.box="vertical", legend.margin=margin())+
   annotation_scale(location = "bl", style="bar", unit_category="metric") +
   annotation_north_arrow(location = "tr", which_north= "true")
-  
+
 fig5<-grid.arrange(fig5a, fig5b, nrow=1)%>%
   ggsave(filename="Figure 5.jpg", width=25, height=25, units="cm", dpi=300)
 
